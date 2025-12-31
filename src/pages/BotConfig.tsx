@@ -6,14 +6,12 @@ import {
   Settings,
   TrendingUp,
   Plus,
-  MoreVertical,
-  Zap,
-  Shield,
-  Target,
-  Clock,
   X
 } from 'lucide-react';
 
+// ============================================
+// DATA
+// ============================================
 interface BotData {
   id: number;
   name: string;
@@ -22,81 +20,19 @@ interface BotData {
   status: 'running' | 'stopped' | 'paused';
   profit: string;
   isProfit: boolean;
-  trades: number;
   winRate: string;
-  runtime: string;
 }
 
 const bots: BotData[] = [
-  {
-    id: 1,
-    name: 'Grid Master',
-    pair: 'BTC/USDT',
-    strategy: 'Grid Trading',
-    status: 'running',
-    profit: '+$2,456.80',
-    isProfit: true,
-    trades: 156,
-    winRate: '78%',
-    runtime: '14d 6h'
-  },
-  {
-    id: 2,
-    name: 'DCA Pro',
-    pair: 'ETH/USDT',
-    strategy: 'Dollar Cost Average',
-    status: 'running',
-    profit: '+$1,234.50',
-    isProfit: true,
-    trades: 89,
-    winRate: '82%',
-    runtime: '7d 12h'
-  },
-  {
-    id: 3,
-    name: 'Momentum Alpha',
-    pair: 'SOL/USDT',
-    strategy: 'Momentum',
-    status: 'paused',
-    profit: '-$156.20',
-    isProfit: false,
-    trades: 45,
-    winRate: '45%',
-    runtime: '3d 8h'
-  },
-  {
-    id: 4,
-    name: 'Scalper X',
-    pair: 'MATIC/USDT',
-    strategy: 'Scalping',
-    status: 'running',
-    profit: '+$567.30',
-    isProfit: true,
-    trades: 342,
-    winRate: '71%',
-    runtime: '5d 2h'
-  },
-  {
-    id: 5,
-    name: 'Swing Trader',
-    pair: 'DOT/USDT',
-    strategy: 'Swing Trading',
-    status: 'stopped',
-    profit: '+$89.00',
-    isProfit: true,
-    trades: 12,
-    winRate: '67%',
-    runtime: '1d 4h'
-  },
+  { id: 1, name: 'Grid Master', pair: 'BTC/USDT', strategy: 'Grid Trading', status: 'running', profit: '+$2,456.80', isProfit: true, winRate: '78%' },
+  { id: 2, name: 'DCA Pro', pair: 'ETH/USDT', strategy: 'DCA', status: 'running', profit: '+$1,234.50', isProfit: true, winRate: '82%' },
+  { id: 3, name: 'Momentum Alpha', pair: 'SOL/USDT', strategy: 'Momentum', status: 'paused', profit: '-$156.20', isProfit: false, winRate: '45%' },
+  { id: 4, name: 'Scalper X', pair: 'MATIC/USDT', strategy: 'Scalping', status: 'running', profit: '+$567.30', isProfit: true, winRate: '71%' },
 ];
 
-const strategies = [
-  { name: 'Grid Trading', description: 'Buy low, sell high within price range', icon: Target },
-  { name: 'DCA', description: 'Regular interval purchases', icon: Clock },
-  { name: 'Momentum', description: 'Follow market trends', icon: TrendingUp },
-  { name: 'Scalping', description: 'Quick small profits', icon: Zap },
-];
-
+// ============================================
+// COMPONENTS
+// ============================================
 function BotCard({ bot }: { bot: BotData }) {
   const statusColors = {
     running: 'bg-emerald-500',
@@ -104,242 +40,154 @@ function BotCard({ bot }: { bot: BotData }) {
     stopped: 'bg-gray-500',
   };
 
-  const statusGlow = {
-    running: 'shadow-emerald-500/30',
-    paused: 'shadow-amber-500/30',
-    stopped: '',
-  };
-
   return (
-    <div className="glass rounded-2xl p-6 hover:scale-[1.01] transition-all duration-300 hover:border-cyan-500/20 border border-transparent">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <Bot className="w-7 h-7 text-white" />
+    <div className="glass rounded-2xl p-5">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center">
+            <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-bold text-lg">{bot.name}</h3>
-            <p className="text-sm text-gray-400">{bot.pair}</p>
+            <h3 className="font-bold">{bot.name}</h3>
+            <p className="text-xs text-gray-400">{bot.pair}</p>
           </div>
         </div>
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 ${statusGlow[bot.status]} shadow-lg`}>
-          <span className={`w-2 h-2 rounded-full ${statusColors[bot.status]} animate-pulse`} />
-          <span className="text-sm text-gray-300 capitalize font-medium">{bot.status}</span>
+        <div className="flex items-center gap-1.5">
+          <span className={`w-2 h-2 rounded-full ${statusColors[bot.status]}`} />
+          <span className="text-xs text-gray-400 capitalize">{bot.status}</span>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5">
-          <p className="text-xs text-gray-500 mb-1.5 uppercase tracking-wider">Profit/Loss</p>
-          <p className={`font-bold text-lg ${bot.isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {bot.profit}
-          </p>
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="p-3 rounded-xl bg-white/5">
+          <p className="text-xs text-gray-500">Profit</p>
+          <p className={`font-bold ${bot.isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>{bot.profit}</p>
         </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5">
-          <p className="text-xs text-gray-500 mb-1.5 uppercase tracking-wider">Win Rate</p>
-          <p className="font-bold text-lg">{bot.winRate}</p>
-        </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5">
-          <p className="text-xs text-gray-500 mb-1.5 uppercase tracking-wider">Total Trades</p>
-          <p className="font-bold text-lg">{bot.trades}</p>
-        </div>
-        <div className="p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5">
-          <p className="text-xs text-gray-500 mb-1.5 uppercase tracking-wider">Runtime</p>
-          <p className="font-bold text-lg">{bot.runtime}</p>
+        <div className="p-3 rounded-xl bg-white/5">
+          <p className="text-xs text-gray-500">Win Rate</p>
+          <p className="font-bold">{bot.winRate}</p>
         </div>
       </div>
 
-      {/* Strategy Tag */}
-      <div className="flex items-center gap-2 mb-5">
-        <span className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-purple-300 text-sm font-medium border border-purple-500/20">
-          {bot.strategy}
-        </span>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        {bot.status === 'running' ? (
-          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 hover:from-amber-500/30 hover:to-orange-500/30 transition-all font-medium border border-amber-500/20">
-            <Pause className="w-4 h-4" />
-            Pause
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-400 px-2 py-1 rounded-lg bg-white/5">{bot.strategy}</span>
+        <div className="flex gap-2">
+          {bot.status === 'running' ? (
+            <button className="p-2 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500/30">
+              <Pause className="w-4 h-4" />
+            </button>
+          ) : (
+            <button className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">
+              <Play className="w-4 h-4" />
+            </button>
+          )}
+          <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10">
+            <Settings className="w-4 h-4" />
           </button>
-        ) : (
-          <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-400 hover:from-emerald-500/30 hover:to-cyan-500/30 transition-all font-medium border border-emerald-500/20">
-            <Play className="w-4 h-4" />
-            Start
-          </button>
-        )}
-        <button className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 hover:border-white/20">
-          <Settings className="w-4 h-4" />
-        </button>
-        <button className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 hover:border-white/20">
-          <MoreVertical className="w-4 h-4" />
-        </button>
+        </div>
       </div>
     </div>
   );
 }
 
+// ============================================
+// BOT CONFIG PAGE
+// ============================================
 function BotConfig() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   const runningBots = bots.filter(b => b.status === 'running').length;
-  const totalProfit = '$4,191.40';
 
   return (
-    <div className="space-y-8 max-w-[1600px] mx-auto">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Trading Bots
-          </h1>
-          <p className="text-gray-400 text-lg">Manage and configure your automated trading strategies.</p>
+          <h1 className="text-2xl font-bold mb-1">Trading Bots</h1>
+          <p className="text-gray-400 text-sm">Manage your automated strategies</p>
         </div>
         <button 
           onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center gap-2 w-fit shadow-lg shadow-cyan-500/20"
+          className="btn-primary flex items-center gap-2"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Create Bot
         </button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="glass rounded-2xl p-6 hover:border-emerald-500/20 border border-transparent transition-all">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <Bot className="w-7 h-7 text-white" />
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+              <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Active Bots</p>
-              <p className="text-3xl font-bold">{runningBots} <span className="text-gray-500 text-lg font-normal">/ {bots.length}</span></p>
+              <p className="text-gray-400 text-sm">Active Bots</p>
+              <p className="text-2xl font-bold">{runningBots} / {bots.length}</p>
             </div>
           </div>
         </div>
-        <div className="glass rounded-2xl p-6 hover:border-cyan-500/20 border border-transparent transition-all">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-              <TrendingUp className="w-7 h-7 text-white" />
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm mb-1">Total Bot Profit</p>
-              <p className="text-3xl font-bold text-emerald-400">{totalProfit}</p>
+              <p className="text-gray-400 text-sm">Total Profit</p>
+              <p className="text-2xl font-bold text-emerald-400">+$4,102.40</p>
             </div>
           </div>
-        </div>
-        <div className="glass rounded-2xl p-6 hover:border-purple-500/20 border border-transparent transition-all">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-              <Shield className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm mb-1">Avg Win Rate</p>
-              <p className="text-3xl font-bold">68.6%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Available Strategies */}
-      <div className="glass rounded-2xl p-6 lg:p-8">
-        <h2 className="font-bold text-xl mb-6">Available Strategies</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {strategies.map((strategy, idx) => (
-            <div
-              key={idx}
-              className="p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-white/10 hover:to-white/5 transition-all cursor-pointer border border-white/5 hover:border-cyan-500/30 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/20 to-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <strategy.icon className="w-6 h-6 text-cyan-400" />
-              </div>
-              <p className="font-semibold text-lg mb-2">{strategy.name}</p>
-              <p className="text-sm text-gray-400 leading-relaxed">{strategy.description}</p>
-            </div>
-          ))}
         </div>
       </div>
 
       {/* Bots Grid */}
-      <div>
-        <h2 className="font-bold text-xl mb-6">Your Bots</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {bots.map((bot) => (
-            <BotCard key={bot.id} bot={bot} />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {bots.map((bot) => (
+          <BotCard key={bot.id} bot={bot} />
+        ))}
       </div>
 
-      {/* Create Bot Modal */}
+      {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
-          <div className="relative glass-strong rounded-3xl p-8 w-full max-w-lg animate-fade-in shadow-2xl shadow-purple-500/10 border border-white/10">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold">Create New Bot</h2>
-                <p className="text-gray-400 text-sm mt-1">Configure your automated trading strategy</p>
-              </div>
-              <button 
-                onClick={() => setShowCreateModal(false)}
-                className="p-2 rounded-xl hover:bg-white/10 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowCreateModal(false)} />
+          <div className="relative glass-strong rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">Create New Bot</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-white/10 rounded-lg">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="text-sm text-gray-400 mb-2 block font-medium">Bot Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g., My Grid Bot"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/50 transition-all focus:bg-white/[0.07] placeholder-gray-600"
-                />
+                <label className="text-sm text-gray-400 mb-1 block">Bot Name</label>
+                <input type="text" placeholder="My Bot" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500/50" />
               </div>
-              
               <div>
-                <label className="text-sm text-gray-400 mb-2 block font-medium">Trading Pair</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/50 transition-all appearance-none cursor-pointer">
-                  <option value="BTC/USDT">BTC/USDT</option>
-                  <option value="ETH/USDT">ETH/USDT</option>
-                  <option value="SOL/USDT">SOL/USDT</option>
+                <label className="text-sm text-gray-400 mb-1 block">Trading Pair</label>
+                <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                  <option>BTC/USDT</option>
+                  <option>ETH/USDT</option>
+                  <option>SOL/USDT</option>
                 </select>
               </div>
-              
               <div>
-                <label className="text-sm text-gray-400 mb-2 block font-medium">Strategy</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/50 transition-all appearance-none cursor-pointer">
-                  <option value="grid">Grid Trading</option>
-                  <option value="dca">Dollar Cost Average</option>
-                  <option value="momentum">Momentum</option>
+                <label className="text-sm text-gray-400 mb-1 block">Strategy</label>
+                <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                  <option>Grid Trading</option>
+                  <option>DCA</option>
+                  <option>Momentum</option>
                 </select>
-              </div>
-              
-              <div>
-                <label className="text-sm text-gray-400 mb-2 block font-medium">Investment Amount (USDT)</label>
-                <input
-                  type="number"
-                  placeholder="1000"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-cyan-500/50 transition-all focus:bg-white/[0.07] placeholder-gray-600"
-                />
               </div>
             </div>
             
-            <div className="flex gap-4 mt-8">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="flex-1 py-3.5 rounded-xl border border-white/10 hover:bg-white/5 transition-all font-medium"
-              >
+            <div className="flex gap-3 mt-6">
+              <button onClick={() => setShowCreateModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 hover:bg-white/5">
                 Cancel
               </button>
-              <button className="flex-1 btn-primary shadow-lg shadow-cyan-500/20">
-                Create Bot
-              </button>
+              <button className="flex-1 btn-primary">Create</button>
             </div>
           </div>
         </div>
