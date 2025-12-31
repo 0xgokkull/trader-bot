@@ -1,10 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 
-// Components
+// ============================================
+// COMPONENTS
+// ============================================
 import { Sidebar, Header } from './components';
 
-// Pages
+// ============================================
+// PAGES
+// ============================================
 import { 
   Dashboard, 
   Trading, 
@@ -14,34 +18,55 @@ import {
   Profile 
 } from './pages';
 
-// Styles
+// ============================================
+// STYLES
+// ============================================
 import './index.css';
 
+// ============================================
+// APP COMPONENT
+// ============================================
 function App() {
+  // Sidebar state management
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Handlers
+  const handleSidebarOpen = () => setSidebarOpen(true);
+  const handleSidebarClose = () => setSidebarOpen(false);
+  const handleSidebarToggle = () => setSidebarCollapsed(!sidebarCollapsed);
+
+  // Dynamic margin based on sidebar state
+  const mainContentMargin = sidebarCollapsed ? 'lg:ml-24' : 'lg:ml-72';
+
   return (
     <BrowserRouter>
-      <div className="flex min-h-screen">
-        {/* Sidebar Navigation */}
+      {/* ====== ROOT CONTAINER ====== */}
+      <div className="min-h-screen bg-[var(--bg-primary)]">
+        
+        {/* ====== SIDEBAR ====== */}
         <Sidebar 
           isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
+          onClose={handleSidebarClose} 
           isCollapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleCollapse={handleSidebarToggle}
         />
         
-        {/* Main Content Area */}
-        <div className={`flex-1 min-w-0 transition-all duration-300 ${
-          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
-        }`}>
-          {/* Header */}
-          <Header onMenuClick={() => setSidebarOpen(true)} />
+        {/* ====== MAIN CONTENT WRAPPER ====== */}
+        <div className={`
+          flex flex-col min-h-screen
+          transition-all duration-300 ease-in-out
+          ${mainContentMargin}
+        `}>
           
-          {/* Page Content */}
-          <main className="p-5 sm:p-6 lg:p-8 xl:p-10">
-            <div className="max-w-[1800px] mx-auto">
+          {/* ====== HEADER ====== */}
+          <Header onMenuClick={handleSidebarOpen} />
+          
+          {/* ====== PAGE CONTENT ====== */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-[1600px] mx-auto">
+              
+              {/* ====== ROUTES ====== */}
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/trading" element={<Trading />} />
@@ -50,8 +75,10 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
+              
             </div>
           </main>
+          
         </div>
       </div>
     </BrowserRouter>
