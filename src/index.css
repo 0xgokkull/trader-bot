@@ -26,13 +26,6 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  --sidebar-width: 0;
-}
-
-@media (min-width: 1024px) {
-  body {
-    --sidebar-width: 16rem;
-  }
 }
 
 /* Custom Scrollbar */
@@ -226,7 +219,9 @@ body {
 .status-warning {
   background: #f59e0b;
   box-shadow: 0 0 10px #f59e0b;
-}/* Dashboard metric cards animation */
+}
+
+/* Dashboard metric cards animation */
 /* Custom scrollbar styling */
 /* Button hover effects */
 /* Table row hover states */
