@@ -1,4 +1,3 @@
-// Pages barrel export
 export { default as Dashboard } from './Dashboard';
 export { default as Trading } from './Trading';
 export { default as Portfolio } from './Portfolio';
