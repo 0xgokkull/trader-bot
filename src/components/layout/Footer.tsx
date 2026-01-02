@@ -15,7 +15,7 @@ export function Footer() {
                 <TrendingUp className="h-5 w-5" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-                MedZen
+                Trader
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {currentYear} MedZen Trading Bot. All rights reserved.
+            © {currentYear} Trader. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
