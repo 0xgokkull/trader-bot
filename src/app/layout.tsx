@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "MedZen Trading Bot | AI-Powered Crypto Trading",
+  title: "Trader | AI-Powered Crypto Trading",
   description: "Advanced automated trading assistance powered by AI strategies. Portfolio analytics, real-time insights, and transparent execution.",
   keywords: ["crypto trading", "AI trading", "portfolio analytics", "DeFi", "automated trading"],
-  authors: [{ name: "MedZen" }],
+  authors: [{ name: "Trader" }],
   openGraph: {
-    title: "MedZen Trading Bot",
+    title: "Trader",
     description: "AI-Powered Crypto Trading Assistance",
     type: "website",
   },
