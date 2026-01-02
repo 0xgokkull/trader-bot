@@ -95,8 +95,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="w-full px-6 md:px-8 flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/25">
               <TrendingUp className="h-5 w-5" />
@@ -118,7 +118,7 @@ export default function LandingPage() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full blur-3xl opacity-30" />
           </div>
 
-          <div className="container px-4 md:px-6">
+          <div className="w-full px-6 md:px-8">
             <div className="flex flex-col items-center text-center space-y-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
