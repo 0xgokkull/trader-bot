@@ -27,7 +27,7 @@ export default function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 container px-4 md:px-6 py-8">
+      <main className="flex-1 w-full px-6 md:px-8 py-8">
         <div className="space-y-8">
           {/* Demo Mode Banner */}
           {showDemoMode && (
