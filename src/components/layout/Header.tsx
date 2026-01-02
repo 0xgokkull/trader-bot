@@ -47,10 +47,10 @@ export function Header() {
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-2 p-6 border-b border-border">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold">
-                    M
+                    T
                   </div>
                   <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-                    MedZen
+                    Trader
                   </span>
                 </div>
                 {/* Mobile Nav */}
@@ -102,7 +102,7 @@ export function Header() {
               <TrendingUp className="h-5 w-5" />
             </div>
             <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-              MedZen
+              Trader
             </span>
           </Link>
         </div>
