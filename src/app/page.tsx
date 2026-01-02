@@ -203,7 +203,7 @@ export default function LandingPage() {
 
         {/* Features Section */}
         <section id="features" className="py-20 md:py-32 bg-muted/30">
-          <div className="container px-4 md:px-6">
+          <div className="w-full px-6 md:px-8">
             <motion.div
               initial="initial"
               whileInView="animate"
