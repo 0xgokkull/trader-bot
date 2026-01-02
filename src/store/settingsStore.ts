@@ -86,7 +86,7 @@ export const useSettingsStore = create<SettingsState>()(
             resetSettings: () => set(defaultSettings),
         }),
         {
-            name: "medzen-settings",
+            name: "trader-settings",
         }
     )
 )
