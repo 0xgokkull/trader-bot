@@ -1,0 +1,40 @@
+{
+    "name": "trading-bot-backend",
+    "version": "1.0.0",
+    "description": "Backend smart contracts for trading bot with swapping, bridging, and trading logic",
+    "main": "index.js",
+    "scripts": {
+        "compile": "hardhat compile",
+        "test": "hardhat test",
+        "test:local": "hardhat test --network localhost",
+        "node": "hardhat node",
+        "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+        "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+        "deploy:amoy": "hardhat run scripts/deploy.js --network polygonAmoy",
+        "deploy:arb-sepolia": "hardhat run scripts/deploy.js --network arbitrumSepolia",
+        "deploy:base-sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+        "verify:sepolia": "hardhat verify --network sepolia",
+        "clean": "hardhat clean"
+    },
+    "keywords": [
+        "hardhat",
+        "solidity",
+        "trading-bot",
+        "defi",
+        "swap",
+        "bridge"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+        "hardhat": "^2.19.0"
+    },
+    "dependencies": {
+        "@chainlink/contracts": "^1.1.0",
+        "@chainlink/contracts-ccip": "^1.4.0",
+        "@openzeppelin/contracts": "^5.0.2",
+        "@uniswap/v3-periphery": "^1.4.4",
+        "dotenv": "^17.2.3"
+    }
+}
