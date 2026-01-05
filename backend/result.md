@@ -1,11 +1,12 @@
 
 # Test Results (Sepolia)
-Date: 2026-01-04T17:37:49.537Z
+Date: 2026-01-05T16:50:41.267Z
 
-## Bridge (USDC -> Polygon Amoy)
-- **Status**: ✅ SUCCESS
-- **Bridged Amount**: 1.0 USDC
-- **Destination**: Polygon Amoy (16281711391670634445)
-- **Fee Paid**: 0.000088844389714853 ETH
-- **Transaction**: 0xb44da50f9d8bae6206660e0040826ded3f7a567e19a8697172dada36dfd43a5d
-        
+## Dex Aggregator Swap (WETH -> LINK)
+- **Status**: ❌ FAILED
+- **Aggregator**: 0xAE3371637bCbF2C48cd5FAA8afe71e7599b80844
+- **Output**: 0.0 LINK
+
+## Bridge (Amoy)
+- **Status**: ✅ SUCCESS (Initiated)
+- **Tx**: 0x3770e05ea8fa0338f121ae19a4c0f87be7eb24fbb15405cc7107ebefdaef78a8
