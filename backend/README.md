@@ -114,6 +114,9 @@ Implements trading strategies:
 - `createLimitOrder()` - Limit orders
 - `createDCAPlan()` - Dollar-cost averaging
 
+### DexAggregator
+Generic proxy for executing swaps on any router (e.g., Uniswap V3/V2) with dynamic calldata construction.
+
 ## 🌐 Supported Testnets
 
 | Network | Chain ID | RPC |
