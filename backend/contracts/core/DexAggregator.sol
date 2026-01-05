@@ -8,7 +8,10 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @title DexAggregator
- * @notice A generic aggregator that executes swaps on arbitrary routers
+ * @notice A generic aggregator that executes swaps on arbitrary routers.
+ * @dev Designed to bypass rigid interface constraints by using low-level calls.
+ *      WARNING: This contract allows calling ANY address with provided calldata.
+ *      It should be used with strict valid input generation from the client side.
  */
 contract DexAggregator is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
