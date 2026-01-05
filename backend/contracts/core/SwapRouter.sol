@@ -78,7 +78,7 @@ contract SwapRouter is Ownable, ReentrancyGuard {
         IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
 
         // Approve Uniswap router to spend tokens
-        IERC20(tokenIn).safeIncreaseAllowance(address(uniswapRouter), amountIn);
+        IERC20(tokenIn).forceApprove(address(uniswapRouter), amountIn);
 
         // Build swap params
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
@@ -128,7 +128,7 @@ contract SwapRouter is Ownable, ReentrancyGuard {
         IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountInMax);
 
         // Approve router
-        IERC20(tokenIn).safeIncreaseAllowance(address(uniswapRouter), amountInMax);
+        IERC20(tokenIn).forceApprove(address(uniswapRouter), amountInMax);
 
         // Build swap params
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
@@ -181,7 +181,7 @@ contract SwapRouter is Ownable, ReentrancyGuard {
 
         // Transfer tokens
         IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).safeIncreaseAllowance(address(uniswapRouter), amountIn);
+        IERC20(tokenIn).forceApprove(address(uniswapRouter), amountIn);
 
         // Build params
         ISwapRouter.ExactInputParams memory params = ISwapRouter
