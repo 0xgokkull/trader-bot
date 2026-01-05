@@ -2,23 +2,26 @@ const hre = require("hardhat");
 const fs = require("fs");
 
 async function main() {
-    console.log("🚀 Starting Live Test on Sepolia...\n");
+    console.log("🚀 Starting Live Test on Sepolia (DexAggregator Swap & Bridge)...\n");
 
     const [signer] = await hre.ethers.getSigners();
     console.log("📍 Testing with account:", signer.address);
 
     // Load deployments
     const deployments = JSON.parse(fs.readFileSync("deployments-sepolia.json", "utf8"));
-    const { TradingEngine, SwapRouter, BridgeRouter } = deployments.contracts;
+    const { TradingEngine } = deployments.contracts;
+    const DexAggregatorAddr = deployments.contracts.DexAggregator;
+    const UniswapRouter = deployments.external.UniswapV3Router;
+
     // Use standard Sepolia WETH
     const WETH = "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
-    // Standard Circle USDC on Sepolia (from Faucet)
-    const USDC = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+    // Target LINK
+    const LINK = "0x779877A7B0D9E8603169DdbD7836e478b4624789";
 
     console.log("📋 Using Contracts:");
+    console.log("DexAggregator:", DexAggregatorAddr);
+    console.log("UniswapRouter:", UniswapRouter);
     console.log("TradingEngine:", TradingEngine);
-    console.log("WETH:", WETH);
-    console.log("USDC:", USDC);
 
     // ABIs
     const IERC20_ABI = [
@@ -29,165 +32,142 @@ async function main() {
         "function decimals() external view returns (uint8)"
     ];
 
+    const AGGREGATOR_ABI = [
+        "function executeSwap(address router, bytes calldata data, address tokenIn, uint256 amountIn) external payable",
+        "function owner() external view returns (address)"
+    ];
+
     const TRADING_ENGINE_ABI = [
-        "function executeSwap(address tokenIn, address tokenOut, uint256 amountIn, uint256 amountOutMin, uint24 fee) external returns (uint256)",
-        "function bridgeToChain(uint64 destinationChainSelector, address receiver, address token, uint256 amount, bool payInLink) external payable returns (bytes32)",
         "function getBridgeFeeEstimate(uint64 destinationChainSelector, address receiver, address token, uint256 amount) external view returns (uint256)",
-        "function paused() external view returns (bool)",
-        "function bridgeRouter() external view returns (address)"
+        "function bridgeToChain(uint64 destinationChainSelector, address receiver, address token, uint256 amount, bool payInLink) external payable returns (bytes32)"
     ];
 
     // Connect contracts
     const wethContract = await hre.ethers.getContractAt(IERC20_ABI, WETH, signer);
-    const usdcContract = await hre.ethers.getContractAt(IERC20_ABI, USDC, signer);
+    const linkContract = await hre.ethers.getContractAt(IERC20_ABI, LINK, signer);
+    const aggregatorContract = await hre.ethers.getContractAt(AGGREGATOR_ABI, DexAggregatorAddr, signer);
     const tradingEngineContract = await hre.ethers.getContractAt(TRADING_ENGINE_ABI, TradingEngine, signer);
 
-    // Check Initial USDC Balance
-    const initialUSDC = await usdcContract.balanceOf(signer.address);
-    console.log(`\n💰 Initial USDC Balance: ${hre.ethers.formatUnits(initialUSDC, 6)} USDC`);
+    // 1. Wrap ETH
+    const wrapAmount = hre.ethers.parseEther("0.0001");
+    console.log(`\n🔄 1. Wrapping ${hre.ethers.formatEther(wrapAmount)} ETH to WETH...`);
+    let tx = await wethContract.deposit({ value: wrapAmount });
+    await tx.wait();
+    console.log("✅ Wrapped ETH");
 
-    let bridgeAmount = 0n;
+    // 2. Approve Aggregator
+    console.log("\n🔓 2. Approving DexAggregator...");
+    tx = await wethContract.approve(DexAggregatorAddr, wrapAmount);
+    await tx.wait();
+    console.log("✅ Approved DexAggregator");
 
-    if (initialUSDC > 0n) {
-        console.log("✅ Found existing USDC balance! Skipping swap and proceeding to bridge.");
-        bridgeAmount = initialUSDC;
-    } else {
-        console.log("⚠️ No USDC found. Attempting Swap (WETH -> USDC)...");
+    // 3. Swap (WETH -> LINK) via Aggregator
+    console.log("\n💱 3. Executing Swap via DexAggregator (WETH -> LINK)...");
 
-        // 1. Wrap ETH
-        const wrapAmount = hre.ethers.parseEther("0.001");
-        console.log(`\n🔄 1. Wrapping ${hre.ethers.formatEther(wrapAmount)} ETH to WETH...`);
-        let tx = await wethContract.deposit({ value: wrapAmount });
+    const balanceBefore = await linkContract.balanceOf(signer.address);
+    console.log(`Balance Before: ${hre.ethers.formatEther(balanceBefore)} LINK`);
+
+    const fee = 3000;
+
+    // Construct Uniswap V3 Calldata
+    // Interface for SwapRouter02 / ISwapRouter ExactInputSingleParams
+    // struct ExactInputSingleParams { address tokenIn; address tokenOut; uint24 fee; address recipient; uint256 deadline; uint256 amountIn; uint256 amountOutMinimum; uint160 sqrtPriceLimitX96; }
+    const SWAP_ROUTER_INTERFACE = new hre.ethers.Interface([
+        "function exactInputSingle(tuple(address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96) params) external payable returns (uint256 amountOut)"
+    ]);
+
+    const params = {
+        tokenIn: WETH,
+        tokenOut: LINK,
+        fee: fee,
+        recipient: signer.address, // Send tokens directly to User
+        deadline: Math.floor(Date.now() / 1000) + 300,
+        amountIn: wrapAmount,
+        amountOutMinimum: 0,
+        sqrtPriceLimitX96: 0
+    };
+
+    // Encode call
+    const swapData = SWAP_ROUTER_INTERFACE.encodeFunctionData("exactInputSingle", [params]);
+
+    let swapSuccess = false;
+    try {
+        console.log(`Executing swap on Router ${UniswapRouter}...`);
+
+        // Static Call first
+        await aggregatorContract.executeSwap.staticCall(UniswapRouter, swapData, WETH, wrapAmount);
+
+        // Execute
+        tx = await aggregatorContract.executeSwap(UniswapRouter, swapData, WETH, wrapAmount);
+        console.log("Transaction sent:", tx.hash);
         await tx.wait();
-        console.log("✅ Wrapped ETH");
-
-        // 2. Approve WETH
-        console.log("\n🔓 2. Approving WETH...");
-        tx = await wethContract.approve(TradingEngine, wrapAmount);
-        await tx.wait();
-        console.log("✅ Approved WETH");
-
-        // 3. Swap
-        console.log("\n💱 3. Executing Swap...");
-        const feeTiers = [3000, 500, 10000];
-        for (const fee of feeTiers) {
-            try {
-                tx = await tradingEngineContract.executeSwap(WETH, USDC, wrapAmount, 0, fee);
-                await tx.wait();
-                console.log(`✅ Swap Executed (Fee: ${fee})`);
-                break;
-            } catch (e) {
-                console.log(`❌ Swap failed (Fee: ${fee})`);
-            }
-        }
-
-        const afterSwap = await usdcContract.balanceOf(signer.address);
-        bridgeAmount = afterSwap;
+        console.log("✅ Swap Executed via Aggregator!");
+        swapSuccess = true;
+    } catch (e) {
+        console.log("❌ Swap failed");
+        console.error(e);
     }
+
+    const balanceAfter = await linkContract.balanceOf(signer.address);
+    // Use BigInt 0n comparison to be safe
+    const gained = balanceAfter > balanceBefore ? balanceAfter - balanceBefore : 0n;
+    console.log(`+ Gained: ${hre.ethers.formatEther(gained)} LINK`);
+
 
     // 4. Bridge to Polygon Amoy
-    console.log("\n🌉 4. Executing Bridge (USDC -> Polygon Amoy)...");
+    console.log("\n🌉 4. Executing Bridge (Fallback to USDC if LINK missing)...");
 
-    // Cap at 1 USDC for testing to save funds
-    if (bridgeAmount > 1000000n) bridgeAmount = 1000000n;
+    let bridgeToken = LINK;
+    let bridgeAmount = gained;
+    const USDC = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // Sepolia USDC
 
-    const POLYGON_AMOY_SELECTOR = 16281711391670634445n;
-
-    // Diagnostic Checks
-    console.log("🔍 Running Diagnostics...");
-    const isPaused = await tradingEngineContract.paused();
-    console.log(`- Engine Paused: ${isPaused}`);
-
-    // We need BridgeRouter address to check support
-    // We can get it from deployment, but let's check what TradingEngine thinks it is
-    const bridgeRouterAddr = await tradingEngineContract.bridgeRouter();
-    console.log(`- BridgeRouter (in Engine): ${bridgeRouterAddr}`);
-
-    // Check chain support on BridgeRouter
-    const BRIDGE_ROUTER_ABI = ["function supportedChains(uint64) external view returns (bool)"];
-    const bridgeRouterContract = await hre.ethers.getContractAt(BRIDGE_ROUTER_ABI, bridgeRouterAddr, signer);
-
-    const isSupported = await bridgeRouterContract.supportedChains(POLYGON_AMOY_SELECTOR);
-    console.log(`- Chain ${POLYGON_AMOY_SELECTOR} Supported: ${isSupported}`);
-
-    // Check Allowance
-    const allowance = await usdcContract.allowance(signer.address, TradingEngine);
-    console.log(`- USDC Allowance: ${hre.ethers.formatUnits(allowance, 6)}`);
-    console.log(`- Required: ${hre.ethers.formatUnits(bridgeAmount, 6)}`);
-
-    if (bridgeAmount <= 0n) {
-        console.log("❌ No USDC available to bridge.");
-        return;
+    if (bridgeAmount === 0n) {
+        console.log("⚠️ No LINK obtained. Bridging USDC...");
+        const usdcContract = await hre.ethers.getContractAt(IERC20_ABI, USDC, signer);
+        const usdcBal = await usdcContract.balanceOf(signer.address);
+        if (usdcBal > 0n) {
+            console.log("✅ Using USDC for Bridge Test.");
+            bridgeToken = USDC;
+            const maxBridge = hre.ethers.parseUnits("1.0", 6);
+            bridgeAmount = usdcBal > maxBridge ? maxBridge : usdcBal;
+        } else {
+            console.log("❌ No LINK or USDC to bridge. Aborting.");
+            return;
+        }
     }
 
-    console.log(`Bridging ${hre.ethers.formatUnits(bridgeAmount, 6)} USDC...`);
-
-    // Approve USDC
-    console.log("Approving USDC for Bridge...");
-    let tx = await usdcContract.approve(TradingEngine, bridgeAmount);
+    // TradingEngine requires approval from User -> TradingEngine for bridge
+    console.log("Approving TradingEngine for Bridge...");
+    const tokenContract = await hre.ethers.getContractAt(IERC20_ABI, bridgeToken, signer);
+    tx = await tokenContract.approve(TradingEngine, bridgeAmount);
     await tx.wait();
-    console.log("✅ Approved USDC");
 
-    // Start Bridge
-    // Estimate fees
-    const fee = await tradingEngineContract.getBridgeFeeEstimate(
-        POLYGON_AMOY_SELECTOR,
-        signer.address,
-        USDC,
-        bridgeAmount
-    );
-    console.log("Estimated Bridge Fee (ETH):", hre.ethers.formatEther(fee));
+    // Call TradingEngine to bridge
+    const POLYGON_AMOY_SELECTOR = 16281711391670634445n;
+    console.log("Estimating Fees...");
+    const feeEst = await tradingEngineContract.getBridgeFeeEstimate(POLYGON_AMOY_SELECTOR, signer.address, bridgeToken, bridgeAmount);
+    console.log("Estimated Bridge Fee (ETH):", hre.ethers.formatEther(feeEst));
 
-    // Execute Bridge
-    let receipt;
-    try {
-        // Estimate gas manually first to see if we can catch revert reason
-        await tradingEngineContract.bridgeToChain.staticCall(
-            POLYGON_AMOY_SELECTOR,
-            signer.address,
-            USDC,
-            bridgeAmount,
-            false,
-            { value: fee }
-        );
-        console.log("✅ Static call successful (Simulation passed)");
+    console.log("Bridging...");
+    tx = await tradingEngineContract.bridgeToChain(POLYGON_AMOY_SELECTOR, signer.address, bridgeToken, bridgeAmount, false, { value: feeEst });
+    console.log("Tx:", tx.hash);
+    await tx.wait();
+    console.log("✅ Bridge Initiated!");
 
-        tx = await tradingEngineContract.bridgeToChain(
-            POLYGON_AMOY_SELECTOR,
-            signer.address,
-            USDC,
-            bridgeAmount,
-            false, // payInLink = false (pay in native ETH)
-            { value: fee }
-        );
-        console.log("Bridge transaction sent:", tx.hash);
-        receipt = await tx.wait();
-        console.log("✅ Bridge Initiated!");
-    } catch (error) {
-        console.error("❌ Bridge Execution Failed Details:", error);
-        // Try to decode if possible or just print
-    }
-
-    if (receipt && receipt.status === 1) {
-        console.log("Transaction Status: SUCCESS");
-
-        // Save results
-        const results = `
+    const results = `
 # Test Results (Sepolia)
 Date: ${new Date().toISOString()}
 
-## Bridge (USDC -> Polygon Amoy)
-- **Status**: ✅ SUCCESS
-- **Bridged Amount**: ${hre.ethers.formatUnits(bridgeAmount, 6)} USDC
-- **Destination**: Polygon Amoy (${POLYGON_AMOY_SELECTOR})
-- **Fee Paid**: ${hre.ethers.formatEther(fee)} ETH
-- **Transaction**: ${tx.hash}
-        `;
-        fs.writeFileSync("result.md", results);
-        console.log("\n📝 Results saved to result.md");
-    } else {
-        console.error("Transaction Status: FAILED");
-    }
+## Dex Aggregator Swap (WETH -> LINK)
+- **Status**: ${swapSuccess ? "✅ SUCCESS" : "❌ FAILED"}
+- **Aggregator**: ${DexAggregatorAddr}
+- **Output**: ${hre.ethers.formatEther(gained)} LINK
+
+## Bridge (Amoy)
+- **Status**: ✅ SUCCESS (Initiated)
+- **Tx**: ${tx.hash}
+`;
+    fs.writeFileSync("result.md", results);
 }
 
 main()

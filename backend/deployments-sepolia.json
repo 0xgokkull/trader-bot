@@ -3,11 +3,12 @@
   "timestamp": "2026-01-04T17:36:22.030Z",
   "deployer": "0x5Bdf0012b83d1C7720a60BC53db303fFc932aC49",
   "contracts": {
-    "SwapRouter": "0x42af8cADA6aC1aA1666623B532cE9C3CCDc3a664",
+    "SwapRouter": "0xA0057CBC69116bd19c697d01503FbE738d590177",
     "BridgeRouter": "0x81E2F7F7bee4e9039EB6D75159851782E418B386",
     "TradingLogic": "0x3232554852C30400582F77715093921dBa2ef96d",
     "TradingEngine": "0xb9734D52B04110E5D76BB47FC1970fDF73E3609b",
-    "PriceOracle": "0xDf1a296d496CF0de54b5809F86064afE5a7d3866"
+    "PriceOracle": "0xDf1a296d496CF0de54b5809F86064afE5a7d3866",
+    "DexAggregator": "0xAE3371637bCbF2C48cd5FAA8afe71e7599b80844"
   },
   "external": {
     "UniswapV3Router": "0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E",
