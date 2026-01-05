@@ -13,7 +13,7 @@ import "./TradingLogic.sol";
  * @dev Entry point for all trading operations
  */
 contract TradingEngine is Ownable, ReentrancyGuard {
-    // Core module references
+    // Core module references (Immutable-ish, settable by owner)
     SwapRouter public swapRouter;
     BridgeRouter public bridgeRouter;
     TradingLogic public tradingLogic;
