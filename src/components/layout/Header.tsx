@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { 
   Bell, 
   Menu, 
@@ -19,6 +18,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSettingsStore, useNotificationStore } from "@/store"
 import { cn } from "@/lib/utils"
 
+
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Wallet", href: "/wallet", icon: Wallet },
@@ -30,15 +30,16 @@ export function Header() {
   const { darkMode, toggleDarkMode } = useSettingsStore()
   const unreadCount = useNotificationStore((state) => state.unreadCount)
 
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="w-full px-6 md:px-8 relative flex h-16 items-center justify-between">
-        {/* Left Side: Mobile Menu & Desktop Nav */}
-        <div className="flex items-center gap-4">
+        {/* Left Side: Logo & Navigation */}
+        <div className="flex items-center gap-6">
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="-ml-2">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -75,8 +76,18 @@ export function Header() {
             </SheetContent>
           </Sheet>
 
-          {/* Desktop Navigation (Moved to Left) */}
-          <nav className="hidden md:flex items-center gap-1">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/25">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
+              Trader
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1 ml-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -93,18 +104,6 @@ export function Header() {
               </Link>
             ))}
           </nav>
-        </div>
-
-        {/* Center Logo */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/25">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-            <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-              Trader
-            </span>
-          </Link>
         </div>
 
         {/* Actions (Right) */}
@@ -132,16 +131,6 @@ export function Header() {
               <Moon className="h-5 w-5" />
             )}
           </Button>
-
-          {/* Wallet Connect */}
-          <ConnectButton 
-            chainStatus="icon"
-            showBalance={false}
-            accountStatus={{
-              smallScreen: "avatar",
-              largeScreen: "full",
-            }}
-          />
         </div>
       </div>
     </header>
