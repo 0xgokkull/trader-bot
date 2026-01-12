@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSettingsStore, useNotificationStore } from "@/store"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 
 const navItems = [
@@ -29,6 +30,12 @@ export function Header() {
   const pathname = usePathname()
   const { darkMode, toggleDarkMode } = useSettingsStore()
   const unreadCount = useNotificationStore((state) => state.unreadCount)
+
+  const handleThemeToggle = () => {
+    toggleDarkMode()
+    toast.success(darkMode ? "Switched to Light Mode" : "Switched to Dark Mode")
+  }
+
 
 
   return (
@@ -124,7 +131,7 @@ export function Header() {
           </Link>
 
           {/* Theme Toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+          <Button variant="ghost" size="icon" onClick={handleThemeToggle}>
             {darkMode ? (
               <Sun className="h-5 w-5" />
             ) : (
